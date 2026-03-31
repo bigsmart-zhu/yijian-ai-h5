@@ -1,0 +1,1756 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="衣见AI - AI 虚拟试衣间，上传衣服，一键预览上身效果">
+  <meta name="theme-color" content="#FF6B9D">
+  <!-- 微信分享配置 -->
+  <meta property="og:title" content="衣见AI - AI虚拟试衣间">
+  <meta property="og:description" content="上传衣服，AI帮你秒看上身效果！免下载，打开就能用">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80">
+  <meta property="og:url" content="">
+  <title>衣见AI - AI虚拟试衣间</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: #FFF5F8;
+      color: #333;
+      overflow: hidden;
+    }
+
+    #app {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* 通用样式 */
+    .container {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      min-height: 100%;
+      padding-bottom: 40px;
+    }
+
+    /* 按钮 */
+    button {
+      border: none;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 50px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #FF6B9D, #FF8C69);
+      color: white;
+      padding: 0 20px;
+      height: 50px;
+      box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
+      width: 100%;
+    }
+
+    .btn-primary:active {
+      opacity: 0.85;
+      transform: scale(0.98);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #FF6B9D;
+      border: 2px solid #FF6B9D;
+      padding: 0 20px;
+      height: 50px;
+    }
+
+    /* 页面 - 首页 */
+    #index-page {
+      background: #FFF5F8;
+    }
+
+    .banner {
+      background: linear-gradient(160deg, #FF6B9D 0%, #FF8C69 100%);
+      padding: 40px 20px 30px;
+      text-align: center;
+      border-radius: 0 0 30px 30px;
+      margin-bottom: 25px;
+      color: white;
+    }
+
+    .banner-icon {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    .banner-title {
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .banner-desc {
+      font-size: 15px;
+      opacity: 0.85;
+    }
+
+    .section {
+      padding: 0 20px;
+      margin-bottom: 25px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 5px;
+    }
+
+    .section-hint {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 20px;
+    }
+
+    .custom-card {
+      background: linear-gradient(135deg, #FFF0F5 0%, #FFF5F0 100%);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #FFD6E7;
+      box-shadow: 0 2px 10px rgba(255, 107, 157, 0.12);
+      margin-bottom: 20px;
+    }
+
+    .custom-card-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+    }
+
+    .custom-icon {
+      font-size: 40px;
+      flex-shrink: 0;
+    }
+
+    .custom-info {
+      flex: 1;
+    }
+
+    .custom-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #FF6B9D;
+      margin-bottom: 4px;
+    }
+
+    .custom-desc {
+      font-size: 13px;
+      color: #999;
+    }
+
+    .custom-arrow {
+      font-size: 20px;
+      color: #FF6B9D;
+      margin-left: 10px;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      padding: 20px 20px 15px;
+      gap: 10px;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: #eee;
+    }
+
+    .divider-text {
+      font-size: 12px;
+      color: #ccc;
+      white-space: nowrap;
+    }
+
+    .age-list {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .age-card {
+      flex: 1;
+      background: white;
+      border-radius: 14px;
+      padding: 20px 10px;
+      text-align: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .age-card.active {
+      border-color: #FF6B9D;
+      background: #FFF0F5;
+      box-shadow: 0 4px 14px rgba(255, 107, 157, 0.25);
+    }
+
+    .age-emoji {
+      font-size: 36px;
+      margin-bottom: 8px;
+    }
+
+    .age-label {
+      font-size: 16px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 4px;
+    }
+
+    .age-desc {
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .footer {
+      padding: 20px;
+      margin-top: auto;
+    }
+
+    .btn-next {
+      margin-bottom: 10px;
+    }
+
+    .tips {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #aaa;
+    }
+
+    .tip-item {
+      flex: 1;
+    }
+
+    .tip-icon {
+      font-size: 22px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    /* 模特选择页 */
+    .header {
+      padding: 20px 15px 10px;
+      text-align: center;
+    }
+
+    .header-tag {
+      display: inline-block;
+      background: #FFF0F5;
+      color: #FF6B9D;
+      border: 1px solid #FF6B9D;
+      border-radius: 15px;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .header-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 4px;
+    }
+
+    .header-hint {
+      font-size: 11px;
+      color: #aaa;
+    }
+
+    .model-grid {
+      flex: 1;
+      padding: 10px 10px;
+      overflow-y: auto;
+    }
+
+    .grid-inner {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      padding-bottom: 10px;
+    }
+
+    .model-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      border: 2px solid transparent;
+      position: relative;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .model-card.active {
+      border-color: #FF6B9D;
+      box-shadow: 0 4px 14px rgba(255, 107, 157, 0.3);
+    }
+
+    .check-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      background: #FF6B9D;
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+    }
+
+    .model-image {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .model-info {
+      padding: 8px 8px 10px;
+    }
+
+    .model-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .model-desc {
+      font-size: 11px;
+      color: #aaa;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .page-footer {
+      padding: 15px 20px 20px;
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-back {
+      flex: 0 0 90px;
+      height: 45px;
+      font-size: 14px;
+      padding: 0;
+    }
+
+    .btn-next {
+      flex: 1;
+      height: 45px;
+    }
+
+    /* 上传页面 */
+    .model-preview {
+      display: flex;
+      align-items: center;
+      background: white;
+      margin: 15px 15px 0;
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      gap: 12px;
+    }
+
+    .preview-img {
+      width: 60px;
+      height: 80px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #f5f5f5;
+    }
+
+    .preview-info {
+      flex: 1;
+    }
+
+    .preview-name {
+      font-size: 17px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 4px;
+    }
+
+    .preview-age {
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    .btn-change {
+      background: #FFF0F5;
+      color: #FF6B9D;
+      border: 1px solid #FF6B9D;
+      border-radius: 15px;
+      padding: 0 12px;
+      height: 32px;
+      font-size: 12px;
+      flex-shrink: 0;
+    }
+
+    .upload-section {
+      padding: 20px 20px 10px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .upload-item {
+      margin-bottom: 15px;
+    }
+
+    .upload-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .upload-icon {
+      font-size: 18px;
+    }
+
+    .upload-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .upload-optional {
+      font-size: 12px;
+      color: #FF6B9D;
+    }
+
+    .upload-box {
+      background: white;
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .upload-box.done {
+      border: 2px solid #FF6B9D;
+      background: #FFF5F8;
+    }
+
+    .upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .upload-plus {
+      font-size: 36px;
+      color: #ddd;
+    }
+
+    .upload-tip {
+      font-size: 13px;
+      color: #bbb;
+    }
+
+    .uploaded-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .remove-btn {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border-radius: 50%;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      cursor: pointer;
+    }
+
+    .generate-hint {
+      text-align: center;
+      font-size: 12px;
+      color: #bbb;
+      margin-top: 10px;
+    }
+
+    /* 生成页面 */
+    .animation-area {
+      margin-bottom: 40px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .spinner-wrap {
+      width: 120px;
+      height: 120px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spinner-ring {
+      position: absolute;
+      border-radius: 50%;
+      border: 3px solid transparent;
+    }
+
+    .ring1 {
+      width: 120px;
+      height: 120px;
+      border-top-color: #FF6B9D;
+      border-right-color: rgba(255, 107, 157, 0.3);
+      animation: spin 1.8s linear infinite;
+    }
+
+    .ring2 {
+      width: 90px;
+      height: 90px;
+      border-top-color: #FF8C69;
+      border-left-color: rgba(255, 140, 105, 0.3);
+      animation: spin 1.4s linear reverse infinite;
+    }
+
+    .ring3 {
+      width: 60px;
+      height: 60px;
+      border-top-color: #FFB347;
+      border-right-color: rgba(255, 179, 71, 0.3);
+      animation: spin 1s linear infinite;
+    }
+
+    .spinner-icon {
+      font-size: 32px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.8; }
+    }
+
+    .status-area {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .status-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .status-progress {
+      font-size: 14px;
+      color: #FF6B9D;
+    }
+
+    .steps {
+      display: flex;
+      align-items: center;
+      margin-bottom: 30px;
+      gap: 0;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .step-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ddd;
+      transition: all 0.3s;
+    }
+
+    .step.done .step-dot,
+    .step.active .step-dot {
+      background: #FF6B9D;
+    }
+
+    .step.active .step-dot {
+      box-shadow: 0 0 0 4px rgba(255, 107, 157, 0.25);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    .step-label {
+      font-size: 11px;
+      color: #bbb;
+      white-space: nowrap;
+    }
+
+    .step.done .step-label,
+    .step.active .step-label {
+      color: #FF6B9D;
+    }
+
+    .step-line {
+      flex: 1;
+      height: 2px;
+      background: #eee;
+      margin: 0 5px;
+      margin-bottom: 15px;
+    }
+
+    .step-line.done {
+      background: #FF6B9D;
+    }
+
+    .tips-box {
+      background: white;
+      border-radius: 10px;
+      padding: 14px 20px;
+      box-shadow: 0 2px 8px rgba(255, 107, 157, 0.1);
+      width: 100%;
+    }
+
+    .tip-text {
+      font-size: 14px;
+      color: #666;
+      text-align: center;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 结果页 */
+    .success-badge {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: linear-gradient(135deg, #FF6B9D, #FF8C69);
+      border-radius: 30px;
+      padding: 8px 20px;
+      margin-bottom: 15px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .badge-icon {
+      font-size: 16px;
+    }
+
+    .badge-text {
+      font-size: 14px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .result-card {
+      background: white;
+      border-radius: 14px;
+      padding: 15px;
+      box-shadow: 0 4px 16px rgba(255, 107, 157, 0.15);
+      margin-bottom: 15px;
+    }
+
+    .result-label {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .result-image-wrapper {
+      width: 100%;
+      height: 350px;
+      background: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .result-image {
+      width: 100%;
+      height: 350px;
+      object-fit: contain;
+    }
+
+    .result-hint {
+      font-size: 12px;
+      color: #bbb;
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .compare-section {
+      background: white;
+      border-radius: 14px;
+      padding: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 15px;
+    }
+
+    .compare-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 12px;
+    }
+
+    .compare-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .compare-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .compare-label {
+      font-size: 12px;
+      color: #aaa;
+      text-align: center;
+    }
+
+    .compare-img {
+      width: 100%;
+      height: 140px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .compare-arrow {
+      font-size: 20px;
+      color: #FF6B9D;
+      flex-shrink: 0;
+    }
+
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: auto;
+    }
+
+    .btn-save {
+      height: 48px;
+      font-size: 17px;
+    }
+
+    .btn-retry {
+      height: 44px;
+      font-size: 15px;
+    }
+
+    .btn-text {
+      background: transparent;
+      color: #aaa;
+      font-size: 14px;
+      height: 32px;
+      border: none;
+    }
+
+    /* 自定义模特页面 */
+    .steps-custom {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 15px 20px;
+      background: white;
+      gap: 0;
+    }
+
+    .step-custom {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+    }
+
+    .step-num-custom {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      background: #eee;
+      color: #bbb;
+    }
+
+    .step-custom.active .step-num-custom {
+      background: #FF6B9D;
+      color: white;
+    }
+
+    .step-custom.done .step-num-custom {
+      background: #52C41A;
+      color: white;
+    }
+
+    .step-label-custom {
+      font-size: 11px;
+      color: #bbb;
+      white-space: nowrap;
+    }
+
+    .step-custom.active .step-label-custom,
+    .step-custom.done .step-label-custom {
+      color: #FF6B9D;
+    }
+
+    .step-line-custom {
+      flex: 1;
+      height: 1px;
+      background: #eee;
+      margin: 0 8px;
+      margin-bottom: 15px;
+    }
+
+    .step-line-custom.done {
+      background: #FF6B9D;
+    }
+
+    .card {
+      background: white;
+      border-radius: 14px;
+      margin: 12px 16px 0;
+      padding: 20px;
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 16px;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 6px;
+    }
+
+    .card-title-icon {
+      font-size: 20px;
+    }
+
+    .card-title-required {
+      font-size: 11px;
+      color: #FF6B9D;
+      background: #FFF0F5;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 2px;
+    }
+
+    .card-hint {
+      font-size: 13px;
+      color: #aaa;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .upload-zone {
+      border: 2px dashed #FFB3CF;
+      border-radius: 12px;
+      padding: 30px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      background: #FFF8FB;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .upload-zone:active {
+      background: #FFE8F2;
+    }
+
+    .upload-icon {
+      font-size: 40px;
+    }
+
+    .upload-text {
+      font-size: 16px;
+      font-weight: 600;
+      color: #FF6B9D;
+    }
+
+    .upload-sub {
+      font-size: 12px;
+      color: #bbb;
+    }
+
+    .preview-box {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .preview-img-model {
+      width: 100%;
+      height: 200px;
+      display: block;
+      object-fit: cover;
+      border-radius: 12px;
+    }
+
+    .preview-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(255, 107, 157, 0.85);
+      color: white;
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 10px;
+    }
+
+    .preview-remove {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .tips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 12px;
+    }
+
+    .tip-tag {
+      font-size: 11px;
+      color: #888;
+      background: #F5F5F5;
+      padding: 4px 9px;
+      border-radius: 10px;
+    }
+
+    .clothing-grid {
+      display: flex;
+      gap: 10px;
+    }
+
+    .clothing-item {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .clothing-label {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 13px;
+      color: #555;
+      font-weight: 600;
+    }
+
+    .clothing-label-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .dot-optional {
+      background: #ccc;
+    }
+
+    .upload-cell {
+      border: 2px dashed #ddd;
+      border-radius: 10px;
+      aspect-ratio: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+      background: #fafafa;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .upload-cell.disabled {
+      opacity: 0.4;
+    }
+
+    .upload-cell:active {
+      background: #f0f0f0;
+    }
+
+    .upload-cell-icon {
+      font-size: 24px;
+      color: #ccc;
+    }
+
+    .upload-cell-text {
+      font-size: 11px;
+      color: #bbb;
+    }
+
+    .preview-cell {
+      position: relative;
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .cell-img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+
+    .cell-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 22px;
+      height: 22px;
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 15px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    /* 加载提示 */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    /* 消息提示 */
+    .toast {
+      position: fixed;
+      bottom: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      background: rgba(0,0,0,0.8);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 2000;
+      max-width: 80%;
+      text-align: center;
+    }
+
+    /* 公众号引导 CTA */
+    .cta-follow {
+      background: linear-gradient(135deg, #FFF0F5 0%, #FFF5F0 100%);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border: 1px solid #FFD6E7;
+      gap: 12px;
+    }
+
+    .cta-follow-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .cta-follow-emoji {
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .cta-follow-info {
+      flex: 1;
+    }
+
+    .cta-follow-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 2px;
+    }
+
+    .cta-follow-desc {
+      font-size: 12px;
+      color: #999;
+    }
+
+    .cta-follow-btn {
+      background: linear-gradient(135deg, #FF6B9D, #FF8C69);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .cta-follow-btn:active {
+      opacity: 0.85;
+    }
+
+    /* 关注引导弹窗 */
+    .follow-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 3000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    .follow-modal.active {
+      display: flex;
+    }
+
+    .follow-modal-content {
+      background: white;
+      border-radius: 16px;
+      padding: 30px 25px 25px;
+      text-align: center;
+      max-width: 320px;
+      width: 100%;
+      position: relative;
+    }
+
+    .follow-modal-close {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 22px;
+      color: #ccc;
+      cursor: pointer;
+      padding: 4px;
+      line-height: 1;
+    }
+
+    .follow-modal-emoji {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+
+    .follow-modal-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .follow-modal-desc {
+      font-size: 14px;
+      color: #888;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .follow-modal-steps {
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .follow-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .follow-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B9D, #FF8C69);
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .follow-step-text {
+      font-size: 13px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .follow-modal-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #FF6B9D;
+      margin-bottom: 15px;
+    }
+
+    .follow-modal-ok {
+      background: linear-gradient(135deg, #FF6B9D, #FF8C69);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 12px 0;
+      font-size: 16px;
+      font-weight: 600;
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .follow-modal-ok:active {
+      opacity: 0.85;
+    }
+
+    /* 响应式 */
+    @media (max-width: 375px) {
+      .banner-title {
+        font-size: 24px;
+      }
+      .tips {
+        gap: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- 首页 -->
+    <div id="index-page" class="page active">
+      <div class="container">
+        <div class="banner">
+          <div class="banner-icon">👗</div>
+          <div class="banner-title">衣见AI</div>
+          <div class="banner-desc">上传衣服，一键预览上身效果</div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">快捷换装</div>
+          <div class="section-hint">上传你自己的照片，直接试穿</div>
+          <div class="custom-card" onclick="app.goCustomModel()">
+            <div class="custom-card-left">
+              <div class="custom-icon">🤳</div>
+              <div class="custom-info">
+                <div class="custom-title">自定义模特</div>
+                <div class="custom-desc">上传真人效果图，搭配任意服装</div>
+              </div>
+            </div>
+            <div class="custom-arrow">→</div>
+          </div>
+        </div>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <div class="divider-text">或选择系统模特</div>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title">选择模特类型</div>
+          <div class="section-hint">点击选择，为你匹配对应模特</div>
+          <div class="age-list">
+            <div class="age-card" onclick="app.selectAge('girl')">
+              <div class="age-emoji">👧</div>
+              <div class="age-label">女孩</div>
+              <div class="age-desc">12-18岁</div>
+            </div>
+            <div class="age-card" onclick="app.selectAge('woman')">
+              <div class="age-emoji">👩</div>
+              <div class="age-label">女士</div>
+              <div class="age-desc">20-40岁</div>
+            </div>
+            <div class="age-card" onclick="app.selectAge('elder')">
+              <div class="age-emoji">👵</div>
+              <div class="age-label">中老年</div>
+              <div class="age-desc">50岁以上</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tips">
+          <div class="tip-item">
+            <div class="tip-icon">📸</div>
+            <div>上传衣物图片</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-icon">✨</div>
+            <div>AI智能试穿</div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-icon">💾</div>
+            <div>保存效果图</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="btn-primary btn-next" onclick="app.toModelSelect()" id="btn-next-index">选好了，看模特 →</button>
+      </div>
+    </div>
+
+    <!-- 模特选择页 -->
+    <div id="model-select-page" class="page">
+      <div class="header">
+        <div class="header-tag" id="age-label">女孩模特</div>
+        <div class="header-title">选择你的专属模特</div>
+        <div class="header-hint">选一位风格合适的模特</div>
+      </div>
+
+      <div class="model-grid">
+        <div class="grid-inner" id="model-grid"></div>
+      </div>
+
+      <div class="page-footer">
+        <button class="btn-secondary btn-back" onclick="app.goBack()">← 返回</button>
+        <button class="btn-primary btn-next" onclick="app.toUpload()" id="btn-next-model">就选她 →</button>
+      </div>
+    </div>
+
+    <!-- 上传衣服页 -->
+    <div id="upload-page" class="page">
+      <div class="model-preview">
+        <img class="preview-img" id="model-preview-img" src="" alt="">
+        <div class="preview-info">
+          <div class="preview-name" id="model-preview-name"></div>
+          <div class="preview-age" id="model-preview-age"></div>
+        </div>
+        <button class="btn-change" onclick="app.goBack()">换一个</button>
+      </div>
+
+      <div class="upload-section">
+        <div class="section-title">上传衣物图片</div>
+        <div class="section-hint">至少上传一件，支持上衣、裤子、鞋子</div>
+
+        <div class="upload-item">
+          <div class="upload-label">
+            <span class="upload-icon">👚</span>
+            <span class="upload-name">上衣</span>
+            <span class="upload-optional">（必选）</span>
+          </div>
+          <div class="upload-box" id="upload-top-box" onclick="app.uploadImage('top')">
+            <div class="upload-placeholder">
+              <div class="upload-plus">+</div>
+              <div class="upload-tip">点击上传</div>
+            </div>
+          </div>
+          <div id="uploaded-top" style="display:none; position: relative;">
+            <img class="uploaded-img" id="uploaded-top-img" src="" alt="">
+            <div class="remove-btn" onclick="app.removeImage('top')">✕</div>
+          </div>
+        </div>
+
+        <div class="upload-item">
+          <div class="upload-label">
+            <span class="upload-icon">👖</span>
+            <span class="upload-name">裤子/裙子</span>
+            <span class="upload-optional">（可选）</span>
+          </div>
+          <div class="upload-box" id="upload-bottom-box" onclick="app.uploadImage('bottom')">
+            <div class="upload-placeholder">
+              <div class="upload-plus">+</div>
+              <div class="upload-tip">点击上传</div>
+            </div>
+          </div>
+          <div id="uploaded-bottom" style="display:none; position: relative;">
+            <img class="uploaded-img" id="uploaded-bottom-img" src="" alt="">
+            <div class="remove-btn" onclick="app.removeImage('bottom')">✕</div>
+          </div>
+        </div>
+
+        <div class="upload-item">
+          <div class="upload-label">
+            <span class="upload-icon">👟</span>
+            <span class="upload-name">鞋子</span>
+            <span class="upload-optional">（可选）</span>
+          </div>
+          <div class="upload-box" id="upload-shoes-box" onclick="app.uploadImage('shoes')">
+            <div class="upload-placeholder">
+              <div class="upload-plus">+</div>
+              <div class="upload-tip">点击上传</div>
+            </div>
+          </div>
+          <div id="uploaded-shoes" style="display:none; position: relative;">
+            <img class="uploaded-img" id="uploaded-shoes-img" src="" alt="">
+            <div class="remove-btn" onclick="app.removeImage('shoes')">✕</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="btn-primary" onclick="app.startGenerate()" id="btn-generate">✨ 开始 AI 试穿</button>
+        <div class="generate-hint">AI 生成约需 20-40 秒，请稍等</div>
+      </div>
+    </div>
+
+    <!-- 自定义模特页 -->
+    <div id="custom-upload-page" class="page">
+      <div class="steps-custom">
+        <div class="step-custom" id="step-model-custom">
+          <div class="step-num-custom">1</div>
+          <div class="step-label-custom">上传模特图</div>
+        </div>
+        <div class="step-line-custom"></div>
+        <div class="step-custom" id="step-clothes-custom">
+          <div class="step-num-custom">2</div>
+          <div class="step-label-custom">上传服装</div>
+        </div>
+        <div class="step-line-custom"></div>
+        <div class="step-custom" id="step-generate-custom">
+          <div class="step-num-custom">3</div>
+          <div class="step-label-custom">生成效果</div>
+        </div>
+      </div>
+
+      <div style="flex: 1; overflow-y: auto; padding-bottom: 20px;">
+        <div class="card">
+          <div class="card-title">
+            <span class="card-title-icon">🤳</span>
+            <span>模特效果图</span>
+            <span class="card-title-required">必填</span>
+          </div>
+          <div class="card-hint">上传人物全身或半身照片，AI将保留人物特征并换装</div>
+
+          <div id="model-upload-zone" class="upload-zone" onclick="app.uploadModelImage()">
+            <div class="upload-icon">📷</div>
+            <div class="upload-text">点击上传效果图</div>
+            <div class="upload-sub">支持相册或拍照 · 建议全身照</div>
+          </div>
+
+          <div id="model-preview-box" class="preview-box" style="display: none; margin-top: 12px;">
+            <img class="preview-img-model" id="model-preview-custom" src="" alt="">
+            <div class="preview-badge">模特图</div>
+            <div class="preview-remove" onclick="app.removeModelImage()">×</div>
+          </div>
+
+          <div class="tips-row">
+            <div class="tip-tag">✅ 正面站立</div>
+            <div class="tip-tag">✅ 光线均匀</div>
+            <div class="tip-tag">✅ 背景简洁</div>
+            <div class="tip-tag">❌ 避免逆光</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title">
+            <span class="card-title-icon">👗</span>
+            <span>上传服装</span>
+            <span class="card-title-required">至少填一项</span>
+          </div>
+          <div class="card-hint">上衣、裤子/裙子、鞋子，至少上传一项</div>
+
+          <div class="clothing-grid">
+            <div class="clothing-item">
+              <div class="clothing-label">
+                <span class="clothing-label-dot dot-optional"></span>
+                <span>上衣</span>
+              </div>
+              <div class="upload-cell" id="upload-cell-top" onclick="app.uploadClothing('top')">
+                <div class="upload-cell-icon">＋</div>
+                <div class="upload-cell-text">添加上衣</div>
+              </div>
+              <div id="preview-cell-top" class="preview-cell" style="display: none;">
+                <img class="cell-img" id="cell-img-top" src="" alt="">
+                <div class="cell-remove" onclick="app.removeClothing('top')">×</div>
+              </div>
+            </div>
+
+            <div class="clothing-item">
+              <div class="clothing-label">
+                <span class="clothing-label-dot dot-optional"></span>
+                <span>裤子/裙子</span>
+              </div>
+              <div class="upload-cell" id="upload-cell-bottom" onclick="app.uploadClothing('bottom')">
+                <div class="upload-cell-icon">＋</div>
+                <div class="upload-cell-text">添加下装</div>
+              </div>
+              <div id="preview-cell-bottom" class="preview-cell" style="display: none;">
+                <img class="cell-img" id="cell-img-bottom" src="" alt="">
+                <div class="cell-remove" onclick="app.removeClothing('bottom')">×</div>
+              </div>
+            </div>
+
+            <div class="clothing-item">
+              <div class="clothing-label">
+                <span class="clothing-label-dot dot-optional"></span>
+                <span>鞋子</span>
+              </div>
+              <div class="upload-cell" id="upload-cell-shoes" onclick="app.uploadClothing('shoes')">
+                <div class="upload-cell-icon">＋</div>
+                <div class="upload-cell-text">添加鞋子</div>
+              </div>
+              <div id="preview-cell-shoes" class="preview-cell" style="display: none;">
+                <img class="cell-img" id="cell-img-shoes" src="" alt="">
+                <div class="cell-remove" onclick="app.removeClothing('shoes')">×</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <button class="btn-primary" onclick="app.startGenerateCustom()" id="btn-generate-custom">✨ 开始 AI 换装</button>
+        <div class="generate-hint">AI 生成约需 20-40 秒，请稍等</div>
+      </div>
+    </div>
+
+    <!-- 生成页 -->
+    <div id="generating-page" class="page">
+      <div class="container" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
+        <div class="animation-area">
+          <div class="spinner-wrap">
+            <div class="spinner-ring ring1"></div>
+            <div class="spinner-ring ring2"></div>
+            <div class="spinner-ring ring3"></div>
+            <div class="spinner-icon">✨</div>
+          </div>
+        </div>
+
+        <div class="status-area">
+          <div class="status-title" id="status-title">初始化中...</div>
+          <div class="status-progress" id="status-progress">正在准备</div>
+        </div>
+
+        <div class="steps">
+          <div class="step" id="step-1">
+            <div class="step-dot"></div>
+            <div class="step-label">读取图片</div>
+          </div>
+          <div class="step-line" id="step-line-1"></div>
+          <div class="step" id="step-2">
+            <div class="step-dot"></div>
+            <div class="step-label">分析服装</div>
+          </div>
+          <div class="step-line" id="step-line-2"></div>
+          <div class="step" id="step-3">
+            <div class="step-dot"></div>
+            <div class="step-label">合成效果</div>
+          </div>
+        </div>
+
+        <div class="tips-box">
+          <div class="tip-text" id="tip-text">💡 正在读取衣物图片...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 结果页 -->
+    <div id="result-page" class="page">
+      <div class="container">
+        <div class="success-badge">
+          <span class="badge-icon">✨</span>
+          <span class="badge-text">试穿效果生成成功</span>
+        </div>
+
+        <div class="result-card">
+          <div class="result-label">上身效果图</div>
+          <div class="result-image-wrapper">
+            <img class="result-image" id="result-image" src="" alt="效果图">
+          </div>
+          <div class="result-hint">长按图片可保存</div>
+        </div>
+
+        <div class="compare-section">
+          <div class="compare-title">对比查看</div>
+          <div class="compare-row">
+            <div class="compare-item">
+              <div class="compare-label">模特原图</div>
+              <img class="compare-img" id="compare-model" src="" alt="">
+            </div>
+            <div class="compare-arrow">→</div>
+            <div class="compare-item">
+              <div class="compare-label">试穿效果</div>
+              <img class="compare-img" id="compare-result" src="" alt="">
+            </div>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn-primary btn-save" onclick="app.saveImage()">📥 保存效果图</button>
+          <button class="btn-secondary btn-retry" onclick="app.tryAgain()">换件衣服试试</button>
+          <!-- 公众号引导 CTA -->
+          <div class="cta-follow" id="cta-follow">
+            <div class="cta-follow-left">
+              <div class="cta-follow-emoji">💌</div>
+              <div class="cta-follow-info">
+                <div class="cta-follow-title">喜欢这个效果？</div>
+                <div class="cta-follow-desc">关注公众号看更多AI搭配灵感</div>
+              </div>
+            </div>
+            <button class="cta-follow-btn" onclick="app.showFollowGuide()">关注</button>
+          </div>
+          <button class="btn-text" onclick="app.goHome()">回到首页</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 隐藏的文件输入 -->
+    <input type="file" id="file-input" accept="image/*" style="display: none;">
+
+    <!-- 加载提示 -->
+    <div id="loading" class="loading-overlay" style="display: none;">
+      <div class="loading-spinner"></div>
+    </div>
+
+    <!-- Toast 消息 -->
+    <div id="toast" class="toast" style="display: none;"></div>
+
+    <!-- 关注公众号引导弹窗 -->
+    <div class="follow-modal" id="follow-modal">
+      <div class="follow-modal-content">
+        <button class="follow-modal-close" onclick="app.closeFollowGuide()">×</button>
+        <div class="follow-modal-emoji">👗</div>
+        <div class="follow-modal-title">关注公众号「衣见AI」</div>
+        <div class="follow-modal-desc">更多AI穿搭灵感、搭配攻略<br>每周更新，不要错过~</div>
+        <div class="follow-modal-name" id="follow-mp-name">衣见AI实验室</div>
+        <div class="follow-modal-steps">
+          <div class="follow-step">
+            <div class="follow-step-num">1</div>
+            <div class="follow-step-text">点击右上角 <strong>···</strong> 按钮</div>
+          </div>
+          <div class="follow-step">
+            <div class="follow-step-num">2</div>
+            <div class="follow-step-text">选择 <strong>「关注公众号」</strong></div>
+          </div>
+          <div class="follow-step">
+            <div class="follow-step-num">3</div>
+            <div class="follow-step-text">搜索 <strong id="follow-mp-search">「衣见AI」</strong> 并关注</div>
+          </div>
+        </div>
+        <button class="follow-modal-ok" onclick="app.closeFollowGuide()">我知道了</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
