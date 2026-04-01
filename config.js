@@ -6,8 +6,8 @@
 const CONFIG = {
   // API 代理地址（Vercel 部署后填写）
   // 本地开发: http://localhost:3000
-  // 生产环境: https://yijian-ai-h5.vercel.app
-  API_BASE_URL: 'https://yijian-ai-h5.vercel.app',
+  // 生产环境: /api
+  API_BASE_URL: '/api',
 
   // 是否使用模拟模式（false = 使用真实 API）
   MOCK_MODE: false,
