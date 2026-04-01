@@ -4,6 +4,26 @@
     {
       "src": "api/**/*.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "index.html",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "config.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "app.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "status.js",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "submit.js",
+      "use": "@vercel/static"
     }
   ],
   "routes": [
