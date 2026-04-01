@@ -58,14 +58,14 @@ const app = {
 
   // === 首页逻辑 ===
 
-  selectAge(age) {
+  selectAge(age, el) {
     this.state.selectedAge = age;
 
     // 更新 UI
     document.querySelectorAll('.age-card').forEach(card => {
       card.classList.remove('active');
     });
-    event.currentTarget.classList.add('active');
+    if (el) el.classList.add('active');
   },
 
   toModelSelect() {

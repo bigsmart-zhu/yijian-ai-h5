@@ -1378,17 +1378,17 @@
           <div class="section-title">选择模特类型</div>
           <div class="section-hint">点击选择，为你匹配对应模特</div>
           <div class="age-list">
-            <div class="age-card" onclick="app.selectAge('girl')">
+            <div class="age-card" onclick="app.selectAge('girl', this)">
               <div class="age-emoji">👧</div>
               <div class="age-label">女孩</div>
               <div class="age-desc">12-18岁</div>
             </div>
-            <div class="age-card" onclick="app.selectAge('woman')">
+            <div class="age-card" onclick="app.selectAge('woman', this)">
               <div class="age-emoji">👩</div>
               <div class="age-label">女士</div>
               <div class="age-desc">20-40岁</div>
             </div>
-            <div class="age-card" onclick="app.selectAge('elder')">
+            <div class="age-card" onclick="app.selectAge('elder', this)">
               <div class="age-emoji">👵</div>
               <div class="age-label">中老年</div>
               <div class="age-desc">50岁以上</div>
