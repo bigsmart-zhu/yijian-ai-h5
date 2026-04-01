@@ -4,21 +4,13 @@
  */
 
 const CONFIG = {
-  // Liblib API 配置
-  // 如果你有自己的后端代理，填写你的后端 API 地址
-  // 示例：'https://your-server.com/api/liblib'
-  API_BASE_URL: '',
+  // API 代理地址（Vercel 部署后填写）
+  // 本地开发: http://localhost:3000
+  // 生产环境: https://yijian-ai-h5.vercel.app
+  API_BASE_URL: 'https://yijian-ai-h5.vercel.app',
 
-  // Liblib 凭证（如果有后端代理，放在后端；这里仅作备用）
-  LIBLIB_ACCESS_KEY: '',
-  LIBLIB_SECRET_KEY: '',
-
-  // 微信云开发配置（如果使用云函数方案）
-  // H5 版本不支持 wx.cloud，需要通过后端代理调用云函数
-  CLOUD_FUNCTION_PROXY: '',
-
-  // 是否使用模拟模式（测试时开启，无需真实 API）
-  MOCK_MODE: true,
+  // 是否使用模拟模式（false = 使用真实 API）
+  MOCK_MODE: false,
 
   // 模拟生成延迟（毫秒）
   MOCK_DELAY: 3000,

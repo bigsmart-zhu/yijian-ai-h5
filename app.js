@@ -470,21 +470,16 @@ const app = {
     // Step 1: 上传图片
     updateStatus(1, '上传图片中...', '正在上传模特和衣物图片');
 
-    const formData = new FormData();
-
-    // 将 dataURL 转为 Blob
-    const modelBlob = await this._dataURLtoBlob(modelImageUrl);
-    const garmentBlob = garmentFile || await this._dataURLtoBlob(garmentImageUrl);
-
-    formData.append('modelImage', modelBlob, 'model.jpg');
-    formData.append('garmentImage', garmentBlob, 'garment.jpg');
-
     // Step 2: 提交任务
     updateStatus(2, '提交任务中...', '正在提交换装任务');
 
-    const submitRes = await fetch(`${CONFIG.API_BASE_URL}/tryon/submit`, {
+    const submitRes = await fetch(`${CONFIG.API_BASE_URL}/api/tryon/submit`, {
       method: 'POST',
-      body: formData,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        modelImage: modelImageUrl,
+        garmentImage: garmentImageUrl,
+      }),
     });
 
     if (!submitRes.ok) {
@@ -503,7 +498,7 @@ const app = {
     const startTime = Date.now();
 
     while (Date.now() - startTime < maxWait) {
-      const statusRes = await fetch(`${CONFIG.API_BASE_URL}/tryon/status?taskId=${taskId}`);
+      const statusRes = await fetch(`${CONFIG.API_BASE_URL}/api/tryon/status?taskId=${taskId}`);
       if (!statusRes.ok) throw new Error('查询状态失败');
 
       const statusData = await statusRes.json();
