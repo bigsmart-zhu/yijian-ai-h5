@@ -1,31 +1,8 @@
 {
   "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "config.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "app.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "status.js",
-      "use": "@vercel/static"
-    },
-    {
-      "src": "submit.js",
-      "use": "@vercel/static"
-    }
-  ],
+  "public": true,
+  "buildCommand": "echo 'No build needed'",
+  "outputDirectory": ".",
   "routes": [
     {
       "src": "/api/(.*)",
@@ -33,7 +10,7 @@
     },
     {
       "src": "/(.*)",
-      "dest": "/$1"
+      "dest": "/index.html"
     }
   ]
 }
