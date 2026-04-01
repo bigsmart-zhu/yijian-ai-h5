@@ -5,12 +5,12 @@
 
 const CONFIG = {
   // API 代理地址（Vercel 部署后填写）
-  // 本地开发: http://localhost:3000
+  // 本地开发: http://localhost:8888
   // 生产环境: /api
   API_BASE_URL: '/api',
 
   // 是否使用模拟模式（false = 使用真实 API）
-  MOCK_MODE: false,
+  MOCK_MODE: true,
 
   // 模拟生成延迟（毫秒）
   MOCK_DELAY: 3000,
